@@ -38,6 +38,11 @@ app.get("/", (req, res) => {
   });
 });
 
+app.get("/list-collections", async (req, res) => {
+  const collections = await mongoose.connection.db.listCollections().toArray();
+  res.json(collections.map(col => col.name));
+});
+
 // routes
 app.use("/api/products", productRoute);
 
