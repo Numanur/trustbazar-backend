@@ -1,5 +1,7 @@
 // const app = require("./app");
 const PORT = process.env.PORT || 5000;
+const mongoose = require('mongoose');
+
 // external import
 require("dotenv").config();
 const express = require("express");
