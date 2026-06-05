@@ -183,24 +183,56 @@ const getAllProduct = async (req, res, next) => {
 
 const verifyProduct = async (req, res, next) => {
   try {
-    const serial = req.body.serialNumber;
-    const product = await Product.findOne({ "tracking.serialNumber": serial });
+    const { serialNumber } = req.body;
 
-    if (product) {
-      res.status(200).json({
-        success: true,
-        product,
-      });
-    } else {
-      res.status(404).json({
+    if (!serialNumber || !serialNumber.trim()) {
+      return res.status(400).json({
         success: false,
-        message: "Product not found",
+        code: "SERIAL_REQUIRED",
       });
     }
+
+    const product = await Product.findOne({
+      "tracking.serialNumber": serialNumber.trim(),
+    });
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        code: "PRODUCT_NOT_VERIFIED",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      code: "PRODUCT_VERIFIED",
+      product,
+    });
   } catch (err) {
     next(err);
   }
 };
+
+// const verifyProduct = async (req, res, next) => {
+//   try {
+//     const serial = req.body.serialNumber;
+//     const product = await Product.findOne({ "tracking.serialNumber": serial });
+
+//     if (product) {
+//       res.status(200).json({
+//         success: true,
+//         product,
+//       });
+//     } else {
+//       res.status(404).json({
+//         success: false,
+//         message: "Product not found",
+//       });
+//     }
+//   } catch (err) {
+//     next(err);
+//   }
+// };
 
 module.exports = {
   createProduct,
