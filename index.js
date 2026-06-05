@@ -84,6 +84,22 @@ app.get("/", (req, res) => {
   });
 });
 
+app.get("/api/health", (req, res) => {
+  const dbState = mongoose.connection.readyState;
+
+  if (dbState !== 1) {
+    return res.status(503).json({
+      success: false,
+      code: "DATABASE_DISCONNECTED",
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    code: "BACKEND_READY",
+  });
+});
+
 app.get("/health/db", (req, res) => {
   const states = {
     0: "disconnected",
