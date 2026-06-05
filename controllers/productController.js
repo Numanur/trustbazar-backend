@@ -80,7 +80,7 @@ const updateProduct = async (req, res, next) => {
       {
         $set: { sellStatus: "sold" },
       },
-      { new: true }
+      { new: true },
     );
     res.status(200).json({
       success: true,
@@ -100,7 +100,7 @@ const undoProduct = async (req, res, next) => {
       {
         $set: { sellStatus: "available" },
       },
-      { new: true }
+      { new: true },
     );
     res.status(200).json({
       success: true,
@@ -139,11 +139,41 @@ const getSingleProduct = async (req, res, next) => {
   }
 };
 
+// const getAllProduct = async (req, res, next) => {
+//   try {
+//     const products = await Product.find({}).sort({ createdAt: -1 });
+//     res.status(200).json({
+//       success: true,
+//       products,
+//     });
+//   } catch (err) {
+//     next(err);
+//   }
+// };
+
 const getAllProduct = async (req, res, next) => {
   try {
     const products = await Product.find({}).sort({ createdAt: -1 });
-    res.status(200).json({
+
+    if (!products || products.length === 0) {
+      return res.status(200).json({
+        success: true,
+        statusCode: 200,
+        code: "EMPTY_PRODUCTS",
+        isEmpty: true,
+        message: "No products are available in the database.",
+        count: 0,
+        products: [],
+      });
+    }
+
+    return res.status(200).json({
       success: true,
+      statusCode: 200,
+      code: "PRODUCTS_FOUND",
+      isEmpty: false,
+      message: "Products fetched successfully.",
+      count: products.length,
       products,
     });
   } catch (err) {
