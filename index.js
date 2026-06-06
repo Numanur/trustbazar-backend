@@ -62,6 +62,7 @@ const mongoose = require("mongoose");
 
 const connectDB = require("./config/dbConn");
 const productRoute = require("./routers/productRoute");
+const mobileProductRoute = require("./routers/mobileProductRoute");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -117,6 +118,7 @@ app.get("/health/db", (req, res) => {
 });
 
 app.use("/api/products", productRoute);
+app.use("/api/mobile", mobileProductRoute);
 
 app.use((req, res) => {
   res.status(404).json({
