@@ -22,6 +22,7 @@
 const router = require("express").Router();
 const multer = require("multer");
 const cloudinary = require("../config/cloudinary");
+const { protectAdmin } = require("../middlewares/authMiddleware");
 
 const {
   createProduct,
@@ -66,32 +67,64 @@ const uploadToCloudinary = (fileBuffer) => {
   });
 };
 
-router.post("/upload-image", upload.single("image"), async (req, res, next) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: "No image file uploaded",
+// router.post("/upload-image", upload.single("image"), async (req, res, next) => {
+//   try {
+//     if (!req.file) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "No image file uploaded",
+//       });
+//     }
+
+//     const result = await uploadToCloudinary(req.file.buffer);
+
+//     return res.status(200).json({
+//       success: true,
+//       message: "Image uploaded successfully",
+//       imageUrl: result.secure_url,
+//       publicId: result.public_id,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// });
+
+router.post(
+  "/upload-image",
+  protectAdmin,
+  upload.single("image"),
+  async (req, res, next) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message: "No image file uploaded",
+        });
+      }
+
+      const result = await uploadToCloudinary(req.file.buffer);
+
+      return res.status(200).json({
+        success: true,
+        message: "Image uploaded successfully",
+        imageUrl: result.secure_url,
+        publicId: result.public_id,
       });
+    } catch (error) {
+      next(error);
     }
+  },
+);
 
-    const result = await uploadToCloudinary(req.file.buffer);
+router.post("/create", protectAdmin, createProduct);
+router.put("/undo/:id", protectAdmin, undoProduct);
+router.put("/:id", protectAdmin, updateProduct);
+router.delete("/:id", protectAdmin, deleteProduct);
 
-    return res.status(200).json({
-      success: true,
-      message: "Image uploaded successfully",
-      imageUrl: result.secure_url,
-      publicId: result.public_id,
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-router.post("/create", createProduct);
-router.put("/undo/:id", undoProduct);
-router.put("/:id", updateProduct);
-router.delete("/:id", deleteProduct);
+// router.post("/create", createProduct);
+// router.put("/undo/:id", undoProduct);
+// router.put("/:id", updateProduct);
+// router.delete("/:id", deleteProduct);
 router.get("/single/:id", getSingleProduct);
 router.get("/all", getAllProduct);
 router.post("/verify", verifyProduct);
